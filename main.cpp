@@ -7,7 +7,7 @@
 #define SAMPLE_RATE 44100
 #define FRAMES_PER_BUFFER 1024
 #define PITCH_FACTOR 1.2f
-#define GAIN 1.0f  // Lowered to avoid clipping
+#define GAIN 1.0f 
 
 void pitchShift(const float* input, float* output, unsigned long frames, float factor) {
     for (unsigned long i = 0; i < frames; ++i) {
@@ -39,7 +39,6 @@ int findDeviceByName(const std::string& name, bool output) {
     return -1;
 }
 
-// Globals for file writing
 SNDFILE* sndfile = nullptr;
 SF_INFO sfinfo;
 
@@ -50,18 +49,15 @@ static int paCallback(const void* inputBuffer, void* outputBuffer,
     const float* in = (const float*)inputBuffer;
     float* out = (float*)outputBuffer;
     static float temp[FRAMES_PER_BUFFER];
-    // Pitch shift and window
     pitchShift(in, temp, framesPerBuffer, PITCH_FACTOR);
     applyWindow(temp, framesPerBuffer);
-    // Apply gain, clip, and output stereo (duplicate mono to both channels)
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         float sample = temp[i] * GAIN;
         if (sample > 1.0f) sample = 1.0f;
         if (sample < -1.0f) sample = -1.0f;
-        out[2*i] = sample;     // left
-        out[2*i+1] = sample;   // right
+        out[2*i] = sample;     
+        out[2*i+1] = sample;   
     }
-    // Write to WAV file (stereo)
     if (sndfile) {
         std::vector<float> stereoBuf(framesPerBuffer * 2);
         for (unsigned long i = 0; i < framesPerBuffer; ++i) {
@@ -76,7 +72,6 @@ static int paCallback(const void* inputBuffer, void* outputBuffer,
 int main() {
     Pa_Initialize();
 
-    // Find BlackHole 2ch output device
     std::string virtualDeviceName = "BlackHole 2ch";
     int outputDevice = findDeviceByName(virtualDeviceName, true);
     int inputDevice = Pa_GetDefaultInputDevice();
@@ -87,7 +82,6 @@ int main() {
         return 1;
     }
 
-    // Setup WAV file for stereo output
     sfinfo.samplerate = SAMPLE_RATE;
     sfinfo.channels = 2;
     sfinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
