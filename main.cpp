@@ -100,7 +100,7 @@ int main() {
     inputParams.hostApiSpecificStreamInfo = nullptr;
 
     outputParams.device = outputDevice;
-    outputParams.channelCount = 2; // stereo for BlackHole 2ch
+    outputParams.channelCount = 2; 
     outputParams.sampleFormat = paFloat32;
     outputParams.suggestedLatency = Pa_GetDeviceInfo(outputParams.device)->defaultLowOutputLatency;
     outputParams.hostApiSpecificStreamInfo = nullptr;
